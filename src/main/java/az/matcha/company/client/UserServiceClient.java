@@ -3,12 +3,14 @@ package az.matcha.company.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -30,9 +32,10 @@ public class UserServiceClient {
         String token = extractBearerToken();
         try {
             userServiceRestClient.put()
-                    .uri("/api/v1/internal/profiles/employer/{userId}/company?companyId={companyId}",
-                            userId, companyId)
+                    .uri("/api/v1/internal/profiles/employer/{userId}/company", userId)
                     .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("companyId", companyId))
                     .retrieve()
                     .toBodilessEntity();
             log.debug("Assigned companyId={} to employer userId={}", companyId, userId);
